@@ -21,7 +21,7 @@ export default function SetupScreen({
   onStartGame,
 }: SetupScreenProps) {
   // Custom word state (1-vs-1 / VS mode) - Preconfigured with the Gemini Riddle
-  const [customWord, setCustomWord] = useState('!@URA6');
+  const [customWord, setCustomWord] = useState('!@UTE6');
   const [showPassword, setShowPassword] = useState(false);
   const [hints, setHints] = useState<CustomHint[]>([
     {
@@ -38,11 +38,11 @@ export default function SetupScreen({
     },
     {
       text: 'This is a standard lowercase consonant. It is the fourth letter of the base name, and it remains exactly the same.',
-      anchorChar: 'R',
+      anchorChar: 'T',
     },
     {
       text: 'This is a standard lowercase vowel. It is the last letter of the original 5-letter name, and it does not change.',
-      anchorChar: 'A',
+      anchorChar: 'E',
     },
     {
       text: 'This is a single digit added at the end. It is a number, specifically the last digit of the current year (2026).',
