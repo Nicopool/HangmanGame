@@ -1,4 +1,4 @@
-import { Trophy, Percent, Flame, Target, Calendar, Award, RotateCcw } from 'lucide-react';
+import { Trophy, Percent, Flame, Target, Calendar, Award, RotateCcw, Heart } from 'lucide-react';
 import { Language, GlobalStats, MatchStats } from '../types';
 
 interface ResultsScreenProps {
@@ -158,15 +158,29 @@ export default function ResultsScreen({
                       </span>
                     </td>
                     <td className="p-4 font-semibold">
-                      {match.status === 'won' ? (
-                        <span className="text-[#006644] bg-[#E3FCEF] px-2 py-0.5 rounded text-[11px] font-bold">
-                          {language === 'en' ? 'WON' : 'VICTORIA'}
-                        </span>
-                      ) : (
-                        <span className="text-[#BF2600] bg-[#FFEBE6] px-2 py-0.5 rounded text-[11px] font-bold">
-                          {language === 'en' ? 'LOST' : 'DERROTA'}
-                        </span>
-                      )}
+                      <div className="flex flex-col gap-1 items-start">
+                        {match.status === 'won' ? (
+                          <span className="text-[#006644] bg-[#E3FCEF] px-2 py-0.5 rounded text-[11px] font-bold">
+                            {language === 'en' ? 'WON' : 'VICTORIA'}
+                          </span>
+                        ) : (
+                          <span className="text-[#BF2600] bg-[#FFEBE6] px-2 py-0.5 rounded text-[11px] font-bold">
+                            {language === 'en' ? 'LOST' : 'DERROTA'}
+                          </span>
+                        )}
+                        <div className="flex gap-0.5 items-center mt-0.5">
+                          {Array.from({ length: 6 }).map((_, idx) => (
+                            <Heart
+                              key={idx}
+                              className={`w-2.5 h-2.5 ${
+                                idx < match.livesRemaining
+                                  ? 'fill-[#ff4b72] stroke-[#ff2a55]'
+                                  : 'fill-[#c3c6d6]/20 stroke-[#c3c6d6]'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     </td>
                     <td className="p-4 font-mono font-medium">
                       {match.hintsUsed}

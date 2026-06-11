@@ -1,4 +1,4 @@
-import { X, Clock } from 'lucide-react';
+import { X, Clock, Heart } from 'lucide-react';
 import { Language, MatchStats } from '../types';
 
 interface HistoryDrawerProps {
@@ -73,13 +73,37 @@ export default function HistoryDrawer({
                       </p>
                     </div>
                     {match.status === 'won' ? (
-                      <span className="text-[9px] font-bold text-[#006644] bg-[#E3FCEF] px-1.5 py-0.5 rounded">
-                        {language === 'en' ? 'WIN' : 'WIN'}
-                      </span>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="text-[9px] font-bold text-[#006644] bg-[#E3FCEF] px-1.5 py-0.5 rounded">
+                          {language === 'en' ? 'WIN' : 'VICTORIA'}
+                        </span>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 6 }).map((_, idx) => (
+                            <Heart
+                              key={idx}
+                              className={`w-2 h-2 ${
+                                idx < match.livesRemaining
+                                  ? 'fill-[#ff4b72] stroke-[#ff2a55]'
+                                  : 'fill-[#c3c6d6]/20 stroke-[#c3c6d6]'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     ) : (
-                      <span className="text-[9px] font-bold text-[#BF2600] bg-[#FFEBE6] px-1.5 py-0.5 rounded">
-                        {language === 'en' ? 'LOSS' : 'LOSS'}
-                      </span>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="text-[9px] font-bold text-[#BF2600] bg-[#FFEBE6] px-1.5 py-0.5 rounded">
+                          {language === 'en' ? 'LOSS' : 'DERROTA'}
+                        </span>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 6 }).map((_, idx) => (
+                            <Heart
+                              key={idx}
+                              className="w-2 h-2 fill-[#c3c6d6]/20 stroke-[#c3c6d6]"
+                            />
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}

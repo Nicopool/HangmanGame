@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, CheckCircle2, AlertCircle, XCircle, Lightbulb, RotateCcw, ArrowRight, Volume2, VolumeX, Anchor } from 'lucide-react';
+import { CheckCircle2, AlertCircle, XCircle, Lightbulb, RotateCcw, ArrowRight, Volume2, VolumeX, Anchor, Heart } from 'lucide-react';
 import { Language, GameMode, CustomHint } from '../types';
 import { playSound } from '../utils/audio';
 
@@ -61,6 +61,7 @@ export default function PlayScreen({
 
   // States
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
+  const incorrectCount = guessedLetters.filter((l) => !normalizedWordLetters.includes(l)).length;
   const [hintsRevealed, setHintsRevealed] = useState<number>(0);
   const [gameEnded, setGameEnded] = useState<'won' | 'lost' | null>(null);
   const [timeSpent, setTimeSpent] = useState<number>(0);
@@ -123,6 +124,7 @@ export default function PlayScreen({
 
     // Check if letter exists in normalized word
     const isCorrect = normalizedWordLetters.includes(normalizedLetter);
+    const newIncorrectCount = newGuessed.filter((l) => !normalizedWordLetters.includes(l)).length;
 
     if (isCorrect) {
       playSound('correct', soundEnabled);
@@ -145,6 +147,10 @@ export default function PlayScreen({
         text: language === 'en' ? 'Incorrect guess!' : '¡Fallo incorrecto!',
         type: 'error',
       });
+
+      if (newIncorrectCount >= 6) {
+        handleGameEnd('lost', newGuessed);
+      }
     }
   };
 
@@ -153,12 +159,15 @@ export default function PlayScreen({
     playSound(status === 'won' ? 'win' : 'lose', soundEnabled);
     if (timerRef.current) clearInterval(timerRef.current);
 
+    const incorrectGuesses = currentGuessed.filter((l) => !normalizedWordLetters.includes(l)).length;
+    const livesRemaining = Math.max(0, 6 - incorrectGuesses);
+
     // Call state callback to register result
     onGameFinished({
       word: secretWord,
       category: categoryName || (language === 'en' ? 'Custom Game' : 'Partida Personalizada'),
       status,
-      livesRemaining: 6,
+      livesRemaining,
       hintsUsed: hintsRevealed,
       durationSeconds: timeSpent,
       guessedLetters: currentGuessed,
@@ -231,9 +240,111 @@ export default function PlayScreen({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-start gap-6">
+    <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-start gap-6 lg:flex-row lg:items-start lg:justify-center lg:gap-8">
+      {/* Left/Top: Hangman Area Card */}
+      <section 
+        className="w-full max-w-[400px] aspect-square bg-[#EBECF0] rounded-xl border border-[#E1E2E4] flex items-center justify-center relative shadow-[inset_0_4px_12px_rgba(9,30,66,0.04)]"
+        id="hangman-drawing-section"
+      >
+        <div className="absolute top-4 right-4 flex flex-col sm:flex-row items-end sm:items-center gap-1.5" id="lives-indicator">
+          <span className="font-sans font-semibold text-xs text-[#585f6a]">
+            {language === 'en' ? 'Lives:' : 'Vidas:'}
+          </span>
+          <div className="flex gap-0.5">
+            {Array.from({ length: 6 }).map((_, idx) => {
+              const livesRemaining = Math.max(0, 6 - incorrectCount);
+              const isAlive = idx < livesRemaining;
+              return (
+                <Heart
+                  key={idx}
+                  className={`w-4 h-4 transition-all duration-300 ${
+                    isAlive
+                      ? 'fill-[#ff4b72] stroke-[#ff2a55] drop-shadow-[0_0_4px_rgba(255,75,114,0.4)] scale-100'
+                      : 'fill-[#c3c6d6]/30 stroke-[#c3c6d6] scale-90 opacity-40'
+                  }`}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {categoryName && (
+          <div className="absolute top-4 left-4">
+            <span className="inline-block bg-[#003d9b]/10 text-[#003d9b] font-sans font-semibold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full">
+              {categoryName}
+            </span>
+          </div>
+        )}
+
+        {/* Dynamic Stylized Hangman Graphic drawing */}
+        <svg
+          className="w-2/3 h-2/3 stroke-[#003d9b]"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="3.5"
+          viewBox="0 0 200 200"
+          id="hangman-svg"
+        >
+          {/* Base - Always visible */}
+          <path d="M20 180 L180 180" className="transition-all duration-300" />
+          
+          {/* Pole - Always visible */}
+          <path d="M60 180 L60 20" className="transition-all duration-300" />
+          
+          {/* Top Bar - Always visible */}
+          <path d="M60 20 L140 20" className="transition-all duration-300" />
+          
+          {/* Rope - Always visible */}
+          <path d="M140 20 L140 45" stroke="#314368" strokeWidth="2" className="transition-all duration-300" />
+
+          {/* Head - Visible at >= 1 errors */}
+          {incorrectCount >= 1 && (
+            <circle cx="140" cy="60" r="15" className="transition-all duration-300 stroke-[#003d9b]" fill="none" />
+          )}
+
+          {/* Body - Visible at >= 2 errors */}
+          {incorrectCount >= 2 && (
+            <path d="M140 75 L140 120" className="transition-all duration-300" />
+          )}
+
+          {/* Left Arm - Visible at >= 3 errors */}
+          {incorrectCount >= 3 && (
+            <path d="M140 90 L115 105" className="transition-all duration-300" />
+          )}
+
+          {/* Right Arm - Visible at >= 4 errors */}
+          {incorrectCount >= 4 && (
+            <path d="M140 90 L165 105" className="transition-all duration-300" />
+          )}
+
+          {/* Left Leg - Visible at >= 5 errors */}
+          {incorrectCount >= 5 && (
+            <path d="M140 120 L115 150" className="transition-all duration-300" />
+          )}
+
+          {/* Right Leg & Face details - Visible at >= 6 errors */}
+          {incorrectCount >= 6 && (
+            <>
+              <path d="M140 120 L165 150" className="transition-all duration-300" />
+              {/* Little X eyes on the head to show it is game over styled but without blocking their infinite play */}
+              <path d="M135 56 L139 60" strokeWidth="1.5" />
+              <path d="M139 56 L135 60" strokeWidth="1.5" />
+              <path d="M141 56 L145 60" strokeWidth="1.5" />
+              <path d="M145 56 L141 60" strokeWidth="1.5" />
+            </>
+          )}
+        </svg>
+
+        {timeSpent > 0 && !gameEnded && (
+          <div className="absolute bottom-3 right-4 text-[11px] font-mono text-[#585f6a]">
+            {Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}
+          </div>
+        )}
+      </section>
+
       {/* Right/Bottom: Guessing Area */}
-      <section className="w-full flex flex-col gap-5" id="guessing-section">
+      <section className="w-full max-w-[620px] flex flex-col gap-5" id="guessing-section">
         {/* Toast / Visual Feedback Banner */}
         <div 
           className={`w-full py-2.5 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all duration-300 ${
