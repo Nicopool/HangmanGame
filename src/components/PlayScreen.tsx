@@ -60,14 +60,106 @@ export default function PlayScreen({
   }, [hints, hint1, hint2]);
 
   // States
-  const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
-  const [lives, setLives] = useState(6);
-  const [hintsRevealed, setHintsRevealed] = useState<number>(0);
-  const [gameEnded, setGameEnded] = useState<'won' | 'lost' | null>(null);
+  const [guessedLetters, setGuessedLetters] = useState<string[]>(() => {
+    const savedWord = localStorage.getItem('hangman_active_word');
+    if (savedWord === secretWord) {
+      const saved = localStorage.getItem('hangman_guessed_letters');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return [];
+  });
+
+  const [lives, setLives] = useState<number>(() => {
+    const savedWord = localStorage.getItem('hangman_active_word');
+    if (savedWord === secretWord) {
+      const saved = localStorage.getItem('hangman_lives');
+      if (saved !== null) {
+        return parseInt(saved, 10);
+      }
+    }
+    return 6;
+  });
+
+  const [hintsRevealed, setHintsRevealed] = useState<number>(() => {
+    const savedWord = localStorage.getItem('hangman_active_word');
+    if (savedWord === secretWord) {
+      const saved = localStorage.getItem('hangman_hints_revealed');
+      if (saved !== null) {
+        return parseInt(saved, 10);
+      }
+    }
+    return 0;
+  });
+
+  const [gameEnded, setGameEnded] = useState<'won' | 'lost' | null>(() => {
+    const savedWord = localStorage.getItem('hangman_active_word');
+    if (savedWord === secretWord) {
+      const saved = localStorage.getItem('hangman_game_ended');
+      if (saved === 'won' || saved === 'lost') {
+        return saved;
+      }
+    }
+    return null;
+  });
   
   // Timer state
-  const [timeSpent, setTimeSpent] = useState(0);
+  const [timeSpent, setTimeSpent] = useState<number>(() => {
+    const savedWord = localStorage.getItem('hangman_active_word');
+    if (savedWord === secretWord) {
+      const saved = localStorage.getItem('hangman_time_spent');
+      if (saved !== null) {
+        return parseInt(saved, 10);
+      }
+    }
+    return 0;
+  });
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync state to local storage
+  useEffect(() => {
+    localStorage.setItem('hangman_active_word', secretWord);
+  }, [secretWord]);
+
+  useEffect(() => {
+    localStorage.setItem('hangman_guessed_letters', JSON.stringify(guessedLetters));
+  }, [guessedLetters]);
+
+  useEffect(() => {
+    localStorage.setItem('hangman_lives', lives.toString());
+  }, [lives]);
+
+  useEffect(() => {
+    localStorage.setItem('hangman_hints_revealed', hintsRevealed.toString());
+  }, [hintsRevealed]);
+
+  useEffect(() => {
+    if (gameEnded) {
+      localStorage.setItem('hangman_game_ended', gameEnded);
+    } else {
+      localStorage.removeItem('hangman_game_ended');
+    }
+  }, [gameEnded]);
+
+  useEffect(() => {
+    localStorage.setItem('hangman_time_spent', timeSpent.toString());
+  }, [timeSpent]);
+
+  const handleNavigateToConfig = () => {
+    localStorage.removeItem('hangman_active_word');
+    localStorage.removeItem('hangman_guessed_letters');
+    localStorage.removeItem('hangman_lives');
+    localStorage.removeItem('hangman_hints_revealed');
+    localStorage.removeItem('hangman_game_ended');
+    localStorage.removeItem('hangman_time_spent');
+    onNavigateToConfig();
+  };
 
   // Status feedback banners
   const [feedback, setFeedback] = useState<{
@@ -95,7 +187,6 @@ export default function PlayScreen({
 
   // Start Timer
   useEffect(() => {
-    setTimeSpent(0);
     timerRef.current = setInterval(() => {
       setTimeSpent((prev) => prev + 1);
     }, 1000);
@@ -478,7 +569,7 @@ export default function PlayScreen({
 
             <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
               <button
-                onClick={onNavigateToConfig}
+                onClick={handleNavigateToConfig}
                 className="px-5 py-2.5 border border-[#c3c6d6] hover:bg-[#edeef0] text-[#091E42] font-sans font-semibold text-xs md:text-sm rounded-lg transition-colors cursor-pointer"
                 id="btn-play-again-config"
               >
