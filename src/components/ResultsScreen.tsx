@@ -141,7 +141,6 @@ export default function ResultsScreen({
                   <th className="p-4">{language === 'en' ? 'Word' : 'Palabra'}</th>
                   <th className="p-4">{language === 'en' ? 'Category' : 'Categoría'}</th>
                   <th className="p-4">{language === 'en' ? 'Outcome' : 'Resultado'}</th>
-                  <th className="p-4">{language === 'en' ? 'Lives Remain' : 'Vidas'}</th>
                   <th className="p-4">{language === 'en' ? 'Hints Used' : 'Pistas'}</th>
                   <th className="p-4">{language === 'en' ? 'Duration' : 'Duración'}</th>
                   <th className="p-4">{language === 'en' ? 'Date' : 'Fecha'}</th>
@@ -168,9 +167,6 @@ export default function ResultsScreen({
                           {language === 'en' ? 'LOST' : 'DERROTA'}
                         </span>
                       )}
-                    </td>
-                    <td className="p-4 font-mono font-medium">
-                      {match.status === 'won' ? `${match.livesRemaining}/6` : '0/6'}
                     </td>
                     <td className="p-4 font-mono font-medium">
                       {match.hintsUsed}

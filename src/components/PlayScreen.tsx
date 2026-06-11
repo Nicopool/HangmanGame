@@ -75,16 +75,7 @@ export default function PlayScreen({
     return [];
   });
 
-  const [lives, setLives] = useState<number>(() => {
-    const savedWord = localStorage.getItem('hangman_active_word');
-    if (savedWord === secretWord) {
-      const saved = localStorage.getItem('hangman_lives');
-      if (saved !== null) {
-        return parseInt(saved, 10);
-      }
-    }
-    return 6;
-  });
+  // Lives state is removed per infinite guess request
 
   const [hintsRevealed, setHintsRevealed] = useState<number>(() => {
     const savedWord = localStorage.getItem('hangman_active_word');
@@ -131,9 +122,7 @@ export default function PlayScreen({
     localStorage.setItem('hangman_guessed_letters', JSON.stringify(guessedLetters));
   }, [guessedLetters]);
 
-  useEffect(() => {
-    localStorage.setItem('hangman_lives', lives.toString());
-  }, [lives]);
+  // Lives effect removed
 
   useEffect(() => {
     localStorage.setItem('hangman_hints_revealed', hintsRevealed.toString());
@@ -233,17 +222,10 @@ export default function PlayScreen({
       }
     } else {
       playSound('wrong', soundEnabled);
-      const newLives = lives - 1;
-      setLives(newLives);
-
       setFeedback({
         text: language === 'en' ? 'Incorrect guess!' : '¡Fallo incorrecto!',
         type: 'error',
       });
-
-      if (newLives <= 0) {
-        handleGameEnd('lost', newGuessed);
-      }
     }
   };
 
@@ -257,7 +239,7 @@ export default function PlayScreen({
       word: secretWord,
       category: categoryName || (language === 'en' ? 'Custom Game' : 'Partida Personalizada'),
       status,
-      livesRemaining: status === 'won' ? lives : 0,
+      livesRemaining: 6,
       hintsUsed: hintsRevealed,
       durationSeconds: timeSpent,
       guessedLetters: currentGuessed,
@@ -300,7 +282,7 @@ export default function PlayScreen({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [guessedLetters, gameEnded, lettersList, numbersList, symbolsList, lives]);
+  }, [guessedLetters, gameEnded, lettersList, numbersList, symbolsList]);
 
   const renderKey = (keyChar: string) => {
     const normLet = normalizeChar(keyChar);
@@ -330,96 +312,9 @@ export default function PlayScreen({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-start gap-6 lg:flex-row lg:items-start lg:justify-center lg:gap-8">
-      {/* Left/Top: Hangman Area Card */}
-      <section 
-        className="w-full max-w-[400px] aspect-square bg-[#EBECF0] rounded-xl border border-[#E1E2E4] flex items-center justify-center relative shadow-[inset_0_4px_12px_rgba(9,30,66,0.04)]"
-        id="hangman-drawing-section"
-      >
-        <div className="absolute top-4 right-4 flex items-center gap-1.5 text-[#585f6a]">
-          <Heart className={`w-4.5 h-4.5 text-[#ba1a1a] ${lives <= 1 ? 'animate-pulse' : ''}`} fill="#ba1a1a" />
-          <span className="font-sans font-semibold text-xs md:text-sm">
-            {language === 'en' ? `Lives: ${lives}/6` : `Vidas: ${lives}/6`}
-          </span>
-        </div>
-
-        {categoryName && (
-          <div className="absolute top-4 left-4">
-            <span className="inline-block bg-[#003d9b]/10 text-[#003d9b] font-sans font-semibold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full">
-              {categoryName}
-            </span>
-          </div>
-        )}
-
-        {/* Dynamic Stylized Hangman Graphic drawing (as defined in setup rules) */}
-        <svg
-          className="w-2/3 h-2/3 stroke-[#003d9b]"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="3.5"
-          viewBox="0 0 200 200"
-          id="hangman-svg"
-        >
-          {/* Base - Always visible */}
-          <path d="M20 180 L180 180" className="transition-all duration-300" />
-          
-          {/* Pole - Always visible */}
-          <path d="M60 180 L60 20" className="transition-all duration-300" />
-          
-          {/* Top Bar - Always visible */}
-          <path d="M60 20 L140 20" className="transition-all duration-300" />
-          
-          {/* Rope - Always visible (styled with a custom color/weight if wanted, but using stroke) */}
-          <path d="M140 20 L140 45" stroke="#314368" strokeWidth="2" className="transition-all duration-300" />
-
-          {/* Head - Visible at <= 5 lives */}
-          {lives <= 5 && (
-            <circle cx="140" cy="60" r="15" className="transition-all duration-300 stroke-[#003d9b]" fill="none" />
-          )}
-
-          {/* Body - Visible at <= 4 lives */}
-          {lives <= 4 && (
-            <path d="M140 75 L140 120" className="transition-all duration-300" />
-          )}
-
-          {/* Left Arm - Visible at <= 3 lives */}
-          {lives <= 3 && (
-            <path d="M140 90 L115 105" className="transition-all duration-300" />
-          )}
-
-          {/* Right Arm - Visible at <= 2 lives */}
-          {lives <= 2 && (
-            <path d="M140 90 L165 105" className="transition-all duration-300" />
-          )}
-
-          {/* Left Leg - Visible at <= 1 lives */}
-          {lives <= 1 && (
-            <path d="M140 120 L115 150" className="transition-all duration-300" />
-          )}
-
-          {/* Right Leg / Face details - Visible at <= 0 lives */}
-          {lives <= 0 && (
-            <>
-              <path d="M140 120 L165 150" className="transition-all duration-300" />
-              {/* Little X eyes on the head to show it is absolute game over */}
-              <path d="M135 56 L139 60" strokeWidth="1.5" />
-              <path d="M139 56 L135 60" strokeWidth="1.5" />
-              <path d="M141 56 L145 60" strokeWidth="1.5" />
-              <path d="M145 56 L141 60" strokeWidth="1.5" />
-            </>
-          )}
-        </svg>
-
-        {timeSpent > 0 && !gameEnded && (
-          <div className="absolute bottom-3 right-4 text-[11px] font-mono text-[#585f6a]">
-            {Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}
-          </div>
-        )}
-      </section>
-
+    <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-start gap-6">
       {/* Right/Bottom: Guessing Area */}
-      <section className="w-full max-w-[620px] flex flex-col gap-5" id="guessing-section">
+      <section className="w-full flex flex-col gap-5" id="guessing-section">
         {/* Toast / Visual Feedback Banner */}
         <div 
           className={`w-full py-2.5 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all duration-300 ${
@@ -443,6 +338,20 @@ export default function PlayScreen({
 
         {/* Word Display Slots */}
         <div className="flex flex-col items-center gap-4 bg-white p-5 rounded-xl border border-[#E1E2E4] shadow-xs">
+          {/* Header Row: Category & Timer */}
+          <div className="w-full flex justify-between items-center px-1 border-b border-[#E1E2E4]/60 pb-2.5 mb-1">
+            {categoryName && (
+              <span className="inline-block bg-[#003d9b]/10 text-[#003d9b] font-sans font-semibold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full">
+                {categoryName}
+              </span>
+            )}
+            {timeSpent > 0 && !gameEnded && (
+              <div className="text-xs font-mono text-[#585f6a] bg-[#edeef0] px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold">
+                <span>⏱️</span>
+                <span>{Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}</span>
+              </div>
+            )}
+          </div>
           {/* Find which unique characters are currently anchored to a revealed hint */}
           {(() => {
             const activeAnchorChars = hintsList
