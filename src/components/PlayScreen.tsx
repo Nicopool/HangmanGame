@@ -401,6 +401,30 @@ export default function PlayScreen({
             );
           })()}
 
+          {/* Guessed Keys Row */}
+          {guessedLetters.length > 0 && (
+            <div className="w-full max-w-md mx-auto flex flex-wrap items-center justify-center gap-1.5 py-1.5 px-3 bg-[#f8f9fb] border border-[#E1E2E4] rounded-lg text-xs font-sans text-[#585f6a]">
+              <span className="font-semibold">{language === 'en' ? 'Guesses:' : 'Teclas oprimidas:'}</span>
+              <div className="flex gap-1.5 flex-wrap justify-center">
+                {guessedLetters.map((letCode) => {
+                  const isCorrect = normalizedWordLetters.includes(letCode);
+                  return (
+                    <span 
+                      key={letCode} 
+                      className={`font-bold px-1.5 py-0.5 rounded text-[10px] font-mono shadow-2xs ${
+                        isCorrect 
+                          ? 'bg-[#003d9b]/10 text-[#003d9b]' 
+                          : 'bg-[#edeef0] text-[#737685] line-through'
+                      }`}
+                    >
+                      {letCode}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Hint Area */}
           <div className="w-full flex flex-col items-center" id="hint-area">
             {hintsList.length > 0 && !gameEnded && (
