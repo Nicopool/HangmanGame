@@ -21,15 +21,33 @@ export default function SetupScreen({
   onStartGame,
 }: SetupScreenProps) {
   // Custom word state (1-vs-1 / VS mode) - Preconfigured with the Gemini Riddle
-  const [customWord, setCustomWord] = useState('!@UTE6');
+  const [customWord, setCustomWord] = useState('!@URA6');
   const [showPassword, setShowPassword] = useState(false);
   const [hints, setHints] = useState<CustomHint[]>([
-    { text: 'This symbol starts the name. It is not a letter, but it replaces the first letter of "lute".', anchorChar: '!' },
-    { text: 'A very famous digital symbol. You use it in every email address. It replaces the first \'a\'.', anchorChar: '@' },
-    { text: 'The third letter of the name. It is a vowel and it stays the same.', anchorChar: 'U' },
-    { text: 'The fourth letter of the name. It is a consonant and it stays the same.', anchorChar: 'T' },
-    { text: 'The last letter of the name. It is a vowel and it does not change.', anchorChar: 'E' },
-    { text: 'The last letter of the name. It is a vowel and it does not change', anchorChar: '6' },
+    {
+      text: 'This is a special punctuation symbol. According to your conversion table, it replaces the lowercase letter \'l\' at the very beginning of the name.',
+      anchorChar: '!',
+    },
+    {
+      text: 'This is a digital symbol used universally in email addresses. It replaces the lowercase vowel \'a\' from the original name.',
+      anchorChar: '@',
+    },
+    {
+      text: 'This is a standard lowercase vowel. It is the third letter of the base name, and it does not change at all.',
+      anchorChar: 'U',
+    },
+    {
+      text: 'This is a standard lowercase consonant. It is the fourth letter of the base name, and it remains exactly the same.',
+      anchorChar: 'R',
+    },
+    {
+      text: 'This is a standard lowercase vowel. It is the last letter of the original 5-letter name, and it does not change.',
+      anchorChar: 'A',
+    },
+    {
+      text: 'This is a single digit added at the end. It is a number, specifically the last digit of the current year (2026).',
+      anchorChar: '6',
+    },
   ]);
   const [customWordError, setCustomWordError] = useState('');
 
