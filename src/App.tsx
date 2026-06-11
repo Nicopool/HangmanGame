@@ -60,17 +60,7 @@ export default function App() {
     hints?: CustomHint[];
     categoryName: string;
     mode: GameMode;
-  } | null>(() => {
-    const saved = localStorage.getItem('hangman_active_game');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (err) {
-        console.error('Error parsing active game session', err);
-      }
-    }
-    return null;
-  });
+  } | null>(null);
 
   // Persist settings
   useEffect(() => {
@@ -155,14 +145,7 @@ export default function App() {
     });
   }, [matchHistory]);
 
-  // Active game session storage
-  useEffect(() => {
-    if (activeGame) {
-      localStorage.setItem('hangman_active_game', JSON.stringify(activeGame));
-    } else {
-      localStorage.removeItem('hangman_active_game');
-    }
-  }, [activeGame]);
+  // Active game session storage removed per refresh restart request
 
   // Form submit starts new match
   const handleStartGame = (params: {
