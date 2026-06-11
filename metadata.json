@@ -1,0 +1,6 @@
+{
+  "name": "Hangman Pro",
+  "description": "A high-fidelity minimalist Hangman game with Spanish and English modes, offline analytics, dynamic hints, custom layouts, and a corporate visual aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
