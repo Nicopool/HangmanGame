@@ -20,12 +20,16 @@ export default function SetupScreen({
   presetCategories,
   onStartGame,
 }: SetupScreenProps) {
-  // Custom word state (1-vs-1 / VS mode)
-  const [customWord, setCustomWord] = useState('');
+  // Custom word state (1-vs-1 / VS mode) - Preconfigured with the Gemini Riddle
+  const [customWord, setCustomWord] = useState('!@UTE6');
   const [showPassword, setShowPassword] = useState(false);
   const [hints, setHints] = useState<CustomHint[]>([
-    { text: '', anchorChar: '' },
-    { text: '', anchorChar: '' },
+    { text: 'This symbol starts the name. It is not a letter, but it replaces the first letter of "lute".', anchorChar: '!' },
+    { text: 'A very famous digital symbol. You use it in every email address. It replaces the first \'a\'.', anchorChar: '@' },
+    { text: 'The third letter of the name. It is a vowel and it stays the same.', anchorChar: 'U' },
+    { text: 'The fourth letter of the name. It is a consonant and it stays the same.', anchorChar: 'T' },
+    { text: 'The last letter of the name. It is a vowel and it does not change.', anchorChar: 'E' },
+    { text: 'The last letter of the name. It is a vowel and it does not change', anchorChar: '6' },
   ]);
   const [customWordError, setCustomWordError] = useState('');
 
